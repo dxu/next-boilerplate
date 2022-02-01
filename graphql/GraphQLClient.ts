@@ -8,7 +8,7 @@ import { getLocalStorageKey } from "../utils/api_client";
 
 // TODO: fix this to not be hardcoded to localhost
 const uploadLink = createUploadLink({
-  uri: `${process.env.REACT_APP_SERV_PROTOCOL}${process.env.REACT_APP_SERV_HOSTNAME}/graphql`,
+  uri: `${process.env.NEXT_PUBLIC_REACT_APP_SERV_PROTOCOL}${process.env.NEXT_PUBLIC_REACT_APP_SERV_HOSTNAME}/graphql`,
 });
 
 // TODO: only do this during development
@@ -37,7 +37,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const wsLink = new WebSocketLink({
-  uri: `${process.env.REACT_APP_WS_PROTOCOL}${process.env.REACT_APP_SERV_HOSTNAME}/graphql`,
+  uri: `${process.env.NEXT_PUBLIC_REACT_APP_WS_PROTOCOL}${process.env.NEXT_PUBLIC_REACT_APP_SERV_HOSTNAME}/graphql`,
   options: {
     reconnect: true,
     connectionParams: {
