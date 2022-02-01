@@ -1,6 +1,7 @@
 import React from "react";
 import cookie from "cookie";
 import { NextPage } from "next";
+import { NextPageWithLayout } from "types/types";
 
 type ComponentWithAuthProps = {
   auth_token: string;
@@ -11,14 +12,22 @@ export const AuthContext = React.createContext("");
 
 // we explicitly only have a higher order component to allow for
 // individual pages to be statically optimized (e.g, marketing pages)
-export function withCookieAuth(ComponentClass: NextPage) {
-  const ComponentWithAuth: NextPage<ComponentWithAuthProps> = (props) => {
+export function withCookieAuth(
+  ComponentClass: NextPageWithLayout
+): NextPageWithLayout<ComponentWithAuthProps> {
+  const ComponentWithAuth: NextPageWithLayout<ComponentWithAuthProps> = (
+    props
+  ) => {
     return (
       <AuthContext.Provider value={props.auth_token}>
         <ComponentClass {...props} />
       </AuthContext.Provider>
     );
   };
+
+  if (ComponentClass.getLayout) {
+    ComponentWithAuth.getLayout = ComponentClass.getLayout;
+  }
 
   ComponentWithAuth.getInitialProps = ({ req }) => {
     const initProps = { auth_token: "" };

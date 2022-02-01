@@ -4,8 +4,10 @@ import Image from "next/image";
 import styles from "../styles/Home.module.css";
 
 import { withCookieAuth } from "@utils/auth";
+import Layout from "@layouts/Layout";
+import { NextPageWithLayout } from "types/types";
 
-const Home: NextPage = () => {
+const Home: NextPageWithLayout = () => {
   return (
     <div className={styles.container}>
       <Head>
@@ -69,6 +71,10 @@ const Home: NextPage = () => {
       </footer>
     </div>
   );
+};
+
+Home.getLayout = function getLayout(page) {
+  return <Layout>{page}</Layout>;
 };
 
 export default withCookieAuth(Home);
