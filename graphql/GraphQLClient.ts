@@ -1,10 +1,17 @@
-import { ApolloClient, InMemoryCache, from, split } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  from,
+  split,
+  HttpLink,
+} from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
 import { createUploadLink } from "apollo-upload-client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { getLocalStorageKey } from "../utils/api_client";
+import { IS_SERVER } from "@utils/constants";
 
 // TODO: fix this to not be hardcoded to localhost
 const uploadLink = createUploadLink({
@@ -23,28 +30,19 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) console.log(`[Network error]: ${networkError}`);
 });
 
-const authLink = setContext((_, { headers }) => {
-  // get the authentication token from local storage if it exists
-  // TODO: update this to proper auth
-  const token = localStorage.getItem(getLocalStorageKey());
-  // return the headers to the context so terminating link can read them
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-    },
-  };
-});
-
-const wsLink = new WebSocketLink({
-  uri: `${process.env.NEXT_PUBLIC_REACT_APP_WS_PROTOCOL}${process.env.NEXT_PUBLIC_REACT_APP_SERV_HOSTNAME}/graphql`,
-  options: {
-    reconnect: true,
-    connectionParams: {
-      Authorization: localStorage.getItem(getLocalStorageKey()),
-    },
-  },
-});
+let link = IS_SERVER
+  ? new HttpLink({
+      uri: `${process.env.NEXT_PUBLIC_REACT_APP_WS_PROTOCOL}${process.env.NEXT_PUBLIC_REACT_APP_SERV_HOSTNAME}/graphql`,
+    })
+  : new WebSocketLink({
+      uri: `${process.env.NEXT_PUBLIC_REACT_APP_WS_PROTOCOL}${process.env.NEXT_PUBLIC_REACT_APP_SERV_HOSTNAME}/graphql`,
+      options: {
+        reconnect: true,
+        connectionParams: {
+          Authorization: localStorage.getItem(getLocalStorageKey()),
+        },
+      },
+    });
 
 const splitLink = split(
   ({ query }) => {
@@ -54,11 +52,11 @@ const splitLink = split(
       definition.operation === "subscription"
     );
   },
-  wsLink,
-  from([errorLink, authLink, uploadLink])
+  link,
+  from([errorLink, uploadLink])
 );
 
-const client = new ApolloClient({
+let client = new ApolloClient({
   link: splitLink,
   cache: new InMemoryCache(),
 });
