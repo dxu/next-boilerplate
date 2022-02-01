@@ -17,10 +17,11 @@
     "baseUrl": ".",
     "paths": {
       "@utils/*": ["utils/*"],
-      "@scripts/*": ["scripts/*"],
       "@styles/*": ["styles/*"],
       "@graphql/*": ["graphql/*"],
-      "@gqlt/*": ["graphql/__generated__/*"]
+      "@gqlt/*": ["graphql/__generated__/*"],
+      "@components/*": ["components/*"],
+      "@layouts/*": ["components/layouts/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
